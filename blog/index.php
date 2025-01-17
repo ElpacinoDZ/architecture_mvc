@@ -1,25 +1,22 @@
 <?php
 
-// We connect to the database.
-try {
-	$database = new PDO('mysql:host=localhost;dbname=blog;charset=utf8', 'root', '');
-} catch(Exception $e) {
-	die('Erreur : '.$e->getMessage());
-}
+require_once('src/controllers/homepage.php');
+require_once('src/controllers/post.php');
 
-// We retrieve the 5 last blog posts.
-$statement = $database->query(
-	"SELECT id, titre, contenu, DATE_FORMAT(date_creation, '%d/%m/%Y à %Hh%imin%ss') AS date_creation_fr FROM billets ORDER BY date_creation DESC LIMIT 0, 5"
-);
-$posts = [];
-while (($row = $statement->fetch())) {
-	$post = [
-    	'title' => $row['titre'],
-    	'french_creation_date' => $row['date_creation_fr'],
-    	'content' => $row['contenu'],
-	];
+if (isset($_GET['action']) && $_GET['action'] !== '') {
+	if ($_GET['action'] === 'post') {
+    	if (isset($_GET['id']) && $_GET['id'] > 0) {
+        	$identifier = $_GET['id'];
 
-	$posts[] = $post;
+        	post($identifier);
+    	} else {
+        	echo 'Erreur : aucun identifiant de billet envoyé';
+
+        	die;
+    	}
+	} else {
+    	echo "Erreur 404 : la page que vous recherchez n'existe pas.";
+	}
+} else {
+	homepage();
 }
-require('templates/homepage.php');
-?>
